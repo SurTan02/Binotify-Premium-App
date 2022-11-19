@@ -1,0 +1,11 @@
+version: "3.3"
+services:
+  binotify-premium-app:
+    build: .
+    image: binotify-premium-app:latest
+    volumes:
+      - ./src:/usr/src/app/src
+      - ./public:/usr/src/app/public
+      - ./index.html:/usr/src/app/index.html
+    ports:
+      - ${BINOTIFY_PREMIUM_APP_PORT:-5173}:${BINOTIFY_PREMIUM_APP_PORT:-5173}
