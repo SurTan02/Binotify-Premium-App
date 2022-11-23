@@ -1,14 +1,16 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import Navbar from "./Navbar";
 
-const AddSongForm = ({ callback }) => {
+const EditSongForm = () => {
   return (
     <>
+      <Navbar />
       <div className="fixed inset-x-0 mx-auto block max-w-sm p-6 top-40 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100">
         {" "}
         <div className="py-12">
           <div className="mt-0 max-w-md">
-            <h2 className="text-2xl font-bold mb-4">Add Song</h2>
+            <h2 className="text-2xl font-bold mb-4">Edit Song</h2>
             <div className="grid grid-cols-1 gap-3">
               <label className="block">
                 <span className="text-gray-700">Song Title</span>
@@ -45,12 +47,12 @@ const AddSongForm = ({ callback }) => {
             <div className="inline-flex items-center mt-6 px-6 py-1 text-sm font-medium text-center text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300">
               Save
             </div>
-            <div
+            <Link
+              to={"/"}
               className="inline-flex items-center mt-6 mx-4 px-5 py-1 text-sm font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300"
-              onClick={callback}
             >
               cancel
-            </div>
+            </Link>
           </div>
         </div>
       </div>
@@ -58,4 +60,4 @@ const AddSongForm = ({ callback }) => {
   );
 };
 
-export default AddSongForm;
+export default EditSongForm;
