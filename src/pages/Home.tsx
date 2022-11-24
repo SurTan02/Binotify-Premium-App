@@ -24,15 +24,15 @@ function Home() {
     console.log("clicked");
   };
 
-  const head = {
+  // TAR DIRAPIIN
+  const config = {
     headers:{
-      'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImF5YW0iLCJpc0FkbWluIjowLCJpYXQiOjE2NjkzMDMyNzd9.KzD1k6FdVXJsaWJWJTjCAwRA1m5Kp3Za-HaMAUeOjBM"
+      'Authorization': ""
     }
   }
 
-  // INI BELUM SOALNYA BELUM ADA LOGIN BUAT DAPATIN TOKEN.... 
   const getUsers = async() =>{
-    const response = await  axios.get("http://localhost:8080/song", head);
+    const response = await  axios.get("http://localhost:8080/song", config);
     setData(response.data);
     console.log(data); 
   }
