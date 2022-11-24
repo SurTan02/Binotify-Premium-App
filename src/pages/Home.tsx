@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import Data from "../assets/MOCK_DATA_SONG.json";
+// import Data from "../assets/MOCK_DATA_SONG.json";
 import AddSongForm from "../components/AddSongForm";
 import Navbar from "../components/Navbar";
 // import axios from "axios";
@@ -9,8 +9,8 @@ import Navbar from "../components/Navbar";
 function Home() {
 
   useEffect(() =>{
-    // getUsers();
-    setData(Data);
+    getUsers();
+    // setData(Data);
   }, []);
 
   const [isOpen, setIsOpen] = useState(false);
@@ -24,12 +24,18 @@ function Home() {
     console.log("clicked");
   };
 
+  const head = {
+    headers:{
+      'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImF5YW0iLCJpc0FkbWluIjowLCJpYXQiOjE2NjkzMDMyNzd9.KzD1k6FdVXJsaWJWJTjCAwRA1m5Kp3Za-HaMAUeOjBM"
+    }
+  }
+
   // INI BELUM SOALNYA BELUM ADA LOGIN BUAT DAPATIN TOKEN.... 
-  // const getUsers = async() =>{
-  //   const response = await  axios.get("http://localhost:8080/song");
-  //   setData(response.data);
-  //   console.log(data); 
-  // }
+  const getUsers = async() =>{
+    const response = await  axios.get("http://localhost:8080/song", head);
+    setData(response.data);
+    console.log(data); 
+  }
   
   
  
