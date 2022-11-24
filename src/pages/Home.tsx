@@ -1,12 +1,20 @@
-// import axios from "axios";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Data from "../assets/MOCK_DATA_SONG.json";
-import AddSongForm from "../components/AddSongForm.tsx";
+import AddSongForm from "../components/AddSongForm";
 import Navbar from "../components/Navbar";
+// import axios from "axios";
 
 function Home() {
+
+  useEffect(() =>{
+    // getUsers();
+    setData(Data);
+  }, []);
+
   const [isOpen, setIsOpen] = useState(false);
+  const [data, setData] = useState([]);
   const callbackOpenModal = () => {
     setIsOpen(true);
     console.log("clicked");
@@ -15,6 +23,17 @@ function Home() {
     setIsOpen(false);
     console.log("clicked");
   };
+
+  // INI BELUM SOALNYA BELUM ADA LOGIN BUAT DAPATIN TOKEN.... 
+  // const getUsers = async() =>{
+  //   const response = await  axios.get("http://localhost:8080/song");
+  //   setData(response.data);
+  //   console.log(data); 
+  // }
+  
+  
+ 
+
   return (
     <>
       {isOpen && (
@@ -67,7 +86,7 @@ function Home() {
                     </tr>
                   </thead>
                   <tbody>
-                    {Data.map((item, index) => (
+                    {data.map((item, index) => (
                       <tr
                         key={index}
                         className="bg-white border-b border-gray-200"
@@ -84,12 +103,12 @@ function Home() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
-                            {item.Judul}
+                            {item.judul}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
-                            {item.Audio_path}
+                            {item.audio_path}
                           </div>
                         </td>
                         <td className="text-sm flex justify-between  items-center text-gray-900 font-semibold px-6 py-4 space-x-4 whitespace-nowrap">
