@@ -7,8 +7,7 @@ import Navbar from "../components/Navbar";
 // import axios from "axios";
 
 function Home() {
-
-  useEffect(() =>{
+  useEffect(() => {
     getUsers();
     // setData(Data);
   }, []);
@@ -26,19 +25,16 @@ function Home() {
 
   // TAR DIRAPIIN
   const config = {
-    headers:{
-      'Authorization': ""
-    }
-  }
+    headers: {
+      Authorization: "",
+    },
+  };
 
-  const getUsers = async() =>{
-    const response = await  axios.get("http://localhost:8080/song", config);
+  const getUsers = async () => {
+    const response = await axios.get("http://localhost:8080/song", config);
     setData(response.data);
-    console.log(data); 
-  }
-  
-  
- 
+    console.log(data);
+  };
 
   return (
     <>
