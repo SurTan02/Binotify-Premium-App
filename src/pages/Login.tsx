@@ -63,7 +63,7 @@ export default function Login() {
               </a>
             </p>
           </div>
-          <form className="mt-8 space-y-2" action="#" onSubmit={loginHandler}>
+          <form className="mt-8 space-y-2" onSubmit={loginHandler}>
             <input type="hidden" name="remember" defaultValue="true" />
             <div className="-space-y-px rounded-md shadow-sm">
               <div>
@@ -102,7 +102,7 @@ export default function Login() {
             </div>
 
             <div className="w-full text-center text-red-500">
-              {message || <br></br>}
+              {message || <br />}
             </div>
 
             <div>
