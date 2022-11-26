@@ -5,12 +5,42 @@ import { useNavigate } from "react-router-dom";
 import endpointsConfig from "../config/endpoints.config";
 import AuthContext from "../context/auth.context";
 
+enum UsernameState {
+  FIRST_LOAD,
+  INVALID,
+  VALID,
+  TAKEN,
+  UNIQUE,
+}
+
+enum EmailState {
+  FIRST_LOAD,
+  INVALID,
+  VALID,
+  TAKEN,
+  UNIQUE,
+}
+
+enum PasswordState {
+  FIRST_LOAD,
+  INVALID,
+  VALID,
+}
+
 export default function Register() {
   const authCtx = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const state = {
+    username: UsernameState.FIRST_LOAD,
+    email: EmailState.FIRST_LOAD,
+    password: PasswordState.FIRST_LOAD,
+  };
+  const [validationStates, setValidationStates] = useState(
+    new Map(Object.entries(state))
+  );
+
   const [isLoading, setIsLoading] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(true);
   const [message, setMessage] = useState("");
 
   const [name, setName] = useState("");
@@ -30,11 +60,13 @@ export default function Register() {
   };
 
   const validatePasswordAndConfirmPassword = (): boolean => {
-    return password === confirmPassword;
+    return (
+      password != "" && confirmPassword != "" && password === confirmPassword
+    );
   };
 
   const isUsernameUnique = async () => {
-    if (validateUsername()) {
+    if (validationStates.get("username") === UsernameState.VALID) {
       await axios
         .get(
           endpointsConfig.REST_SERVICE_BASE_URL +
@@ -42,14 +74,16 @@ export default function Register() {
             username
         )
         .then(() => {
-          setMessage("");
+          setValidationStates(
+            validationStates.set("username", UsernameState.UNIQUE)
+          );
         })
         .catch((error) => {
           if (error.response.status === 403) {
-            setMessage("Username is taken.");
-            setIsDisabled(true);
+            validationStates.set("username", UsernameState.TAKEN);
           }
-        });
+        })
+        .finally(setErrorMessage);
     }
   };
 
@@ -58,19 +92,37 @@ export default function Register() {
       await axios
         .get(endpointsConfig.REST_SERVICE_BASE_URL + "/register/email/" + email)
         .then(() => {
-          setMessage("");
+          setValidationStates(validationStates.set("email", EmailState.UNIQUE));
         })
         .catch((error) => {
           if (error.response.status === 403) {
-            setMessage("Email is taken.");
-            setIsDisabled(true);
+            setValidationStates(
+              validationStates.set("email", EmailState.TAKEN)
+            );
           }
-        });
+        })
+        .finally(setErrorMessage);
     }
   };
 
-  // Server validation
   useEffect(() => {
+    if (
+      username === "" &&
+      validationStates.get("username") === UsernameState.FIRST_LOAD
+    )
+      return;
+
+    if (validateUsername())
+      setValidationStates(
+        validationStates.set("username", UsernameState.VALID)
+      );
+    else
+      setValidationStates(
+        validationStates.set("username", UsernameState.INVALID)
+      );
+
+    setErrorMessage();
+
     const timeout = setTimeout(() => {
       isUsernameUnique();
     }, 500);
@@ -79,63 +131,104 @@ export default function Register() {
   }, [username]);
 
   useEffect(() => {
+    if (email === "" && validationStates.get("email") === EmailState.FIRST_LOAD)
+      return;
+
+    if (validateEmail())
+      setValidationStates(validationStates.set("email", EmailState.VALID));
+    else setValidationStates(validationStates.set("email", EmailState.INVALID));
+
     const timeout = setTimeout(() => {
       isEmailUnique();
     }, 500);
 
+    setErrorMessage();
+
     return () => clearTimeout(timeout);
   }, [email]);
 
-  // Client validation
   useEffect(() => {
-    setIsDisabled(false);
-    const m = "";
+    if (
+      password === "" &&
+      confirmPassword === "" &&
+      validationStates.get("password") === PasswordState.FIRST_LOAD
+    )
+      return;
 
-    setMessage(m);
+    if (validatePasswordAndConfirmPassword())
+      setValidationStates(
+        validationStates.set("password", PasswordState.VALID)
+      );
+    else
+      setValidationStates(
+        validationStates.set("password", PasswordState.INVALID)
+      );
 
-    if (!validatePasswordAndConfirmPassword()) {
-      setMessage("Confirm password doesn't match password.");
-      setIsDisabled(true);
-    }
-
-    if (!validateEmail()) {
-      setMessage("Invalid email.");
-      setIsDisabled(true);
-    }
-
-    if (!validateUsername()) {
-      setMessage("Invalid username.");
-      setIsDisabled(true);
-    }
-  }, [username, email, password, confirmPassword]);
+    setErrorMessage();
+  }, [password, confirmPassword]);
 
   const registerHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    await axios
-      .post(endpointsConfig.REST_SERVICE_BASE_URL + "/register", {
-        email,
-        password,
-        username,
-        name,
-      })
-      .then((response) => {
-        authCtx.login(response.data.accessToken, response.data.isAdmin);
+    if (
+      validationStates.get("username") === UsernameState.UNIQUE &&
+      validationStates.get("email") === EmailState.UNIQUE &&
+      validationStates.get("password") === PasswordState.VALID
+    ) {
+      setIsLoading(true);
 
-        navigate("/");
-      })
-      .catch((error) => {
-        if (error.response.status === 403) {
-          setMessage("Register failed.");
-        }
+      await axios
+        .post(endpointsConfig.REST_SERVICE_BASE_URL + "/register", {
+          email,
+          password,
+          username,
+          name,
+        })
+        .then((response) => {
+          authCtx.login(response.data.accessToken, response.data.isAdmin);
 
-        if (error.response.status === 500) {
-          console.error("Internal server error.");
-        }
+          navigate("/");
+        })
+        .catch((error) => {
+          if (error.response.status === 403) {
+          }
 
-        setIsLoading(false);
-      });
+          if (error.response.status === 500) {
+            console.error("Internal server error.");
+          }
+
+          setIsLoading(false);
+        });
+    }
+  };
+
+  const setErrorMessage = () => {
+    if (validationStates.get("username") === UsernameState.INVALID) {
+      setMessage("Invalid username.");
+      return;
+    } else if (validationStates.get("username") === UsernameState.TAKEN) {
+      setMessage("Username is already taken.");
+      return;
+    } else {
+      setMessage("");
+    }
+
+    if (validationStates.get("email") === EmailState.INVALID) {
+      setMessage("Invalid email.");
+      return;
+    } else if (validationStates.get("email") === EmailState.TAKEN) {
+      setMessage("Email is already taken.");
+      return;
+    } else {
+      setMessage("");
+    }
+
+    if (validationStates.get("password") === PasswordState.INVALID) {
+      setMessage("Confirm password doesn't match password");
+      return;
+    } else {
+      setMessage("");
+    }
   };
 
   return (
@@ -243,7 +336,7 @@ export default function Register() {
               <button
                 type="submit"
                 className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-indigo-400 disabled:hover:bg-indigo-400 disabled:cursor-not-allowed"
-                disabled={isDisabled || isLoading}
+                disabled={isLoading}
               >
                 {isLoading ? (
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3">
