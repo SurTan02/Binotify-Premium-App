@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import reactLogo from "../assets/react.svg";
+import AuthContext from "../context/auth.context";
 
 function Navbar({ callback }) {
+  const authCtx = useContext(AuthContext);
+
   return (
     <>
       <div className="w-ful h-12 flex items-center px-11 justify-between bg-white border-b-2">
@@ -19,12 +21,12 @@ function Navbar({ callback }) {
           >
             + Add Song
           </button>
-          <Link
-            to={"/logout"}
+          <button
+            onClick={authCtx.logout}
             className="bg-indigo-500 text-white px-4 py-1 rounded-lg font-Inter font-semibold hover:bg-indigo-600"
           >
             Logout
-          </Link>
+          </button>
         </div>
       </div>
     </>
