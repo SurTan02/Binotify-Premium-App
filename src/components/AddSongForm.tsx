@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const AddSongForm = ({ callback }) => {
+const AddSongForm = ({callback} : {callback:() => {}}) => {
   return (
     <>
       <div className="fixed inset-x-0 mx-auto block max-w-sm p-6 top-40 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100">

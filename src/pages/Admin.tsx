@@ -1,72 +1,60 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import Data from "../assets/MOCK_DATA_SONG.json";
-import AddSongForm from "../components/AddSongForm";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
+import Pagination from "../components/Pagination";
+import endpointsConfig from "../config/endpoints.config";
 // import axios from "axios";
 
 function Admin() {
-
-  useEffect(() =>{
-    getSubscription();
-    // setData(Data);
-  }, []);
-
-  const [isOpen, setIsOpen] = useState(false);
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<any[]>([])
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
 
+  useEffect(() => {
+    getSubscription(currentPage);
+  }, [currentPage]);
 
-  const callbackOpenModal = () => {
-    setIsOpen(true);
-    console.log("clicked");
+  const ubah = (current: number) => {
+    console.log("ini" + current);
+    setCurrentPage(current);
   };
-  const callbackCloseModal = () => {
-    setIsOpen(false);
-    console.log("clicked");
-  };
 
-  // TAR DIRAPIIN
-  const config = {
-    headers:{
-      'Authorization': ""
-    }
-  }
+  const getSubscription = async (current: number) => {
+    const response = await axios.get(
+      endpointsConfig.REST_SERVICE_BASE_URL + "/subscription?page=" + current
+    );
 
-  const getSubscription = async() =>{
-    const response = await axios.get("http://localhost:8080/subscription");
-  
-    var arr: any[] = []
-    Object.keys(response.data.subscriptions).forEach(key => arr.push(response.data.subscriptions[key]))
+    var arr: any[] = [];
+    Object.keys(response.data.subscriptions).forEach((key) =>
+      arr.push(response.data.subscriptions[key])
+    );
+
     setData(arr[0].subscription);
-    setCurrentPage(arr[0].current);
     setTotalPage(arr[0].total);
-  }
-  
-  const updateStatus = async(subscriber_id: number, creator_id: number, status: String) => {
-    const response = await  axios.patch("http://localhost:8080/subscription",{
-      creator_id : creator_id,
-      subscriber_id : subscriber_id,
-      status : status,
+  };
+
+  const updateStatus = async (
+    subscriber_id: number,
+    creator_id: number,
+    status: String
+  ) => {
+    await axios.patch(
+      endpointsConfig.REST_SERVICE_BASE_URL + "/subscription", {
+        creator_id: creator_id,
+        subscriber_id: subscriber_id,
+        status: status
     });
-    // console.log("iki" + response);
-  }
- 
+    getSubscription(currentPage);
+  };
 
   return (
     <>
-      {isOpen && (
-        <AddSongForm
-          className="absolute top-0 left-0 right-0"
-          callback={callbackCloseModal}
-        />
-      )}
-      <Navbar callback={callbackOpenModal} />
+      <Navbar isAdmin={true} callback={() => {}} />
       <div className="w-[100vw] h-full justify-center items-center flex flex-col px-10 py-8 mt-8">
-        <h1 className="text-3xl font-bold text-indigo-500">Song List</h1>
-
+        <h1 className="text-3xl font-bold text-indigo-500">
+          Subscription Request
+        </h1>
+        <Pagination current={ubah} total={totalPage} />
         <div className="flex flex-col">
           <div className="overflow-x-auto mt-8 sm:-mx-6 items-center lg:-mx-8">
             <div className="py-4 inline-block min-w-full sm:px-6 lg:px-8">
@@ -92,7 +80,7 @@ function Admin() {
                       >
                         Subscriber ID
                       </th>
-                    
+
                       <th
                         scope="col"
                         className="text-sm font-lg text-gray-600 px-6 py-4"
@@ -123,29 +111,39 @@ function Admin() {
                           </div>
                         </td>
                         <td className="text-sm flex justify-between items-center text-gray-900 font-semibold px-6 py-4 space-x-4 whitespace-nowrap">
-                        {
-                      
-                          (item.status == "PENDING") ? 
+                          {item.status == "PENDING" ? (
                             <div>
-                                <button
-                                  onClick={() => updateStatus(item.subscriber_id, item.creator_id, "ACCEPTED")}
-                                  className="bg-amber-500 text-white px-4 py-1 rounded-lg">
-                                    Accept
-                                </button>
-                              
                               <button
-                                onClick={() =>  updateStatus(item.subscriber_id,item.creator_id, "REJECTED")}
-                                className="bg-red-500 text-white px-4 py-1 rounded-lg">
+                                onClick={() =>
+                                  updateStatus(
+                                    item.subscriber_id,
+                                    item.creator_id,
+                                    "ACCEPTED"
+                                  )
+                                }
+                                className="bg-amber-500 text-white px-4 py-1 rounded-lg"
+                              >
+                                Accept
+                              </button>
+
+                              <button
+                                onClick={() =>
+                                  updateStatus(
+                                    item.subscriber_id,
+                                    item.creator_id,
+                                    "REJECTED"
+                                  )
+                                }
+                                className="bg-red-500 text-white px-4 py-1 rounded-lg"
+                              >
                                 Reject
                               </button>
-                            </div> : 
-                            
+                            </div>
+                          ) : (
                             <div className="text-sm text-gray-900">
                               {item.status}
                             </div>
-                          }
-                          
-                          
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -155,6 +153,7 @@ function Admin() {
             </div>
           </div>
         </div>
+        
       </div>
     </>
   );

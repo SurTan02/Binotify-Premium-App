@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import AuthContext from "../context/auth.context";
 
-function Navbar({ callback }) {
+function Navbar({callback, isAdmin} : {callback:() => {}, isAdmin:boolean}) {
   const authCtx = useContext(AuthContext);
 
   return (
@@ -14,13 +14,17 @@ function Navbar({ callback }) {
         >
           Binotify Premium App
         </Link>
+
         <div className="flex justify-between gap-4">
+          {!isAdmin?
           <button
             className="bg-indigo-500 text-white px-4 py-1 rounded-lg font-Inter font-semibold hover:bg-indigo-600"
             onClick={callback}
           >
             + Add Song
           </button>
+          : <></>
+          }
           <button
             onClick={authCtx.logout}
             className="bg-indigo-500 text-white px-4 py-1 rounded-lg font-Inter font-semibold hover:bg-indigo-600"
