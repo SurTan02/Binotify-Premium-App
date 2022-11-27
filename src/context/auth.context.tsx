@@ -25,20 +25,21 @@ const getCookie = (cname: string) => {
 
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState(getCookie("token"));
-  const [isAdmin, setIsAdmin] = useState(getCookie("isAdmin") === "true");
+  const [isAdmin, setIsAdmin] = useState(getCookie("isAdmin") === "1");
 
   const loginHandler = (token: string, isAdmin: boolean) => {
     setToken(token);
     setIsAdmin(isAdmin);
     document.cookie = `token=${token}; path=/`;
-    document.cookie = `role=${isAdmin}; path=/`;
+    document.cookie = `isAdmin=${isAdmin}; path=/`;
   };
 
   const logoutHandler = () => {
     setToken("");
     setIsAdmin(false);
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.cookie = "role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie =
+      "isAdmin=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
   };
 
   const contextValue = {
