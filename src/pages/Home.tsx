@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AddSongForm from "../components/AddSongForm";
+// import EditSongForm from "../components/EditSongForm";
 import Navbar from "../components/Navbar";
 import Pagination from "../components/Pagination";
 import endpointsConfig from "../config/endpoints.config";
@@ -43,6 +44,13 @@ function Home() {
           <AddSongForm callback={callbackCloseModal}/>
         </div>
       )}
+
+      {/* {isOpen && (
+        <div className="absolute top-0 left-0 right-0">
+          <SongForm callback={callbackCloseModal}/>
+        </div>
+      )} */}
+
       <Navbar callback={callbackOpenModal} isAdmin={false} />
       
       <div className="w-[100vw] h-full justify-center items-center flex flex-col px-10 py-8 mt-8">
@@ -117,7 +125,7 @@ function Home() {
                           <Link
                             to={`/edit-song/${item.song_id}`}
                             className="bg-amber-500 text-white px-4 py-1 rounded-lg"
-                            onClick={callbackOpenModal}
+                            // onClick={callbackOpenModal}
                           >
                             Edit
                           </Link>
