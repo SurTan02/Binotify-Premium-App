@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import AuthContext from "../context/auth.context";
 
-function Navbar({callback, isAdmin} : {callback:() => {}, isAdmin:boolean}) {
+function Navbar({callback, isAdmin} : {callback: () => void, isAdmin:boolean}) {
   const authCtx = useContext(AuthContext);
 
   return (

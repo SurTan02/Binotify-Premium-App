@@ -1,5 +1,5 @@
 import { useState } from "react";
-const Pagination = ({current, total} : {current:(selectedPage : number) => {}, total:number}) =>
+const Pagination = ({current, total} : {current:(selectedPage : number) => void, total:number}) =>
 {
    let [cur, setCur] = useState(1)
 
