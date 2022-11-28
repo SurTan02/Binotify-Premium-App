@@ -1,19 +1,21 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-// import Data from "../assets/MOCK_DATA_SONG.json";
 import AddSongForm from "../components/AddSongForm";
 import Navbar from "../components/Navbar";
-// import axios from "axios";
+import Pagination from "../components/Pagination";
+import endpointsConfig from "../config/endpoints.config";
 
 function Home() {
-  useEffect(() => {
-    getUsers();
-    // setData(Data);
-  }, []);
-
   const [isOpen, setIsOpen] = useState(false);
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<any[]>([])
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+
+  useEffect(() => {
+    getUsers(currentPage);
+  }, [currentPage]);
+
   const callbackOpenModal = () => {
     setIsOpen(true);
     console.log("clicked");
@@ -23,31 +25,29 @@ function Home() {
     console.log("clicked");
   };
 
-  // TAR DIRAPIIN
-  const config = {
-    headers: {
-      Authorization: "",
-    },
+  const changePage = (current: number) => {
+    setCurrentPage(current);
   };
 
-  const getUsers = async () => {
-    const response = await axios.get("http://localhost:8080/song", config);
-    setData(response.data);
-    console.log(data);
+  const getUsers = async (current: number) => {
+    const response = await axios.get(endpointsConfig.REST_SERVICE_BASE_URL+ "/song?page=" + current);
+    
+    setTotalPage(response.data.total_page)
+    setData(response.data.list);
   };
 
   return (
     <>
       {isOpen && (
-        <AddSongForm
-          className="absolute top-0 left-0 right-0"
-          callback={callbackCloseModal}
-        />
+        <div className="absolute top-0 left-0 right-0">
+          <AddSongForm callback={callbackCloseModal}/>
+        </div>
       )}
-      <Navbar callback={callbackOpenModal} />
+      <Navbar callback={callbackOpenModal} isAdmin={false} />
+      
       <div className="w-[100vw] h-full justify-center items-center flex flex-col px-10 py-8 mt-8">
         <h1 className="text-3xl font-bold text-indigo-500">Song List</h1>
-
+        <Pagination current={changePage} total={totalPage} />
         <div className="flex flex-col">
           <div className="overflow-x-auto mt-8 sm:-mx-6 items-center lg:-mx-8">
             <div className="py-4 inline-block min-w-full sm:px-6 lg:px-8">

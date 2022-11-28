@@ -14,8 +14,7 @@ function Admin() {
     getSubscription(currentPage);
   }, [currentPage]);
 
-  const ubah = (current: number) => {
-    console.log("ini" + current);
+  const changePage = (current: number) => {
     setCurrentPage(current);
   };
 
@@ -54,7 +53,7 @@ function Admin() {
         <h1 className="text-3xl font-bold text-indigo-500">
           Subscription Request
         </h1>
-        <Pagination current={ubah} total={totalPage} />
+        <Pagination current={changePage} total={totalPage} />
         <div className="flex flex-col">
           <div className="overflow-x-auto mt-8 sm:-mx-6 items-center lg:-mx-8">
             <div className="py-4 inline-block min-w-full sm:px-6 lg:px-8">
