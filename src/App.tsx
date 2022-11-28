@@ -6,9 +6,12 @@ import Admin from "./pages/Admin";
 import "./App.css";
 import Register from "./pages/Register";
 import AuthContext from "./context/auth.context";
+import axios from "axios";
 
 function App() {
   const authCtx = useContext(AuthContext);
+
+  axios.defaults.headers.common['Authorization'] = authCtx.token;
 
   return (
     <>
