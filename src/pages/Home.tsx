@@ -15,7 +15,7 @@ function Home() {
 
   useEffect(() => {
     getUsers(currentPage);
-  }, [currentPage]);
+  }, [() => getUsers(currentPage)]);
 
   const callbackOpenModal = () => {
     setIsOpen(true);
