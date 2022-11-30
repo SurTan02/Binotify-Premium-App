@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import axios from "axios";
 import useSWR from "swr";
 import endpointsConfig from "../config/endpoints.config";
+import Pagination from "../components/Pagination";
 
 function SubscriptionList({index, setTotal} : {index : number , setTotal: (totalPages: number) => void}){
     // console.log("running")
@@ -102,34 +103,18 @@ function SubscriptionList({index, setTotal} : {index : number , setTotal: (total
     )
 }
 
-export default function SWR() {
-    const [pageIndex, setPageIndex] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [pages, setPages] = useState<number[]>([1,2,3,4]);
-    let temp: number[] = [];
-    
+export default function Admin() {
+    const [pageIndex, setPageIndex] = useState<number>(1);
+    const [totalPages, setTotalPages] = useState<number>(1);
+
     const changePage = (current: number) => {
-        setTotalPages(current);
+        setPageIndex(current);
     };
-    
 
-    const setPaginationNav = (value : number) =>{
-        setPageIndex(value);
-        if (!pages.includes(value)){
-          temp= pages;
-          
-          const tempMaxPages = Math.min(totalPages, value);
+    const changeTotal = (current: number) => {
+      setTotalPages(current);
+    };
 
-          if (value > pageIndex){
-              temp.shift()
-              temp.push(value)
-          }else{
-              temp.pop();
-              temp.unshift(value)
-          }   
-          setPages(temp)
-        }
-    }
     return (
         <>
         <Navbar isAdmin={true} callback={() => {}} />      
@@ -141,42 +126,10 @@ export default function SWR() {
                     <div className="overflow-x-auto mt-8 sm:-mx-6 items-center lg:-mx-8">
                         <div className="py-4 inline-block min-w-full sm:px-6 lg:px-8">
                             <div className="overflow-hidden ">
-                                <div className="flex font-[Poppins] place-content-center pb-5">
-                                    <button disabled={pageIndex === 1} onClick={() => setPaginationNav(pageIndex - 1)}
-                                        className= {pageIndex === 1 ? "h-12 border-2 border-r-0 \
-                                                        border-indigo-600\
-                                                        px-4 rounded-l-lg" : 
-                                                        
-                                                        "h-12 border-2 border-r-0 \
-                                                        border-indigo-600\
-                                                        px-4 rounded-l-lg\
-                                                    hover:bg-indigo-600 hover:text-white"}>
-                                        <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                                            <path d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" fillRule="evenodd"/>
-                                        </svg>
-                                    </button>
-                                    {
-                                        pages.map((pg, i)=> (
-                                            (totalPages > i) ?
-                                            <button key={i} onClick={() => {setPageIndex(pages[i])}} className={`h-12 border-2 border-r-0 border-indigo-600
-                                            w-12 ${pageIndex === pages[i] && 'bg-indigo-600 text-white'}`}>
-                                                {pages[i]}
-                                            </button>
-                                            :
-                                            <></>
-                                        ))
-                                    }
-                                    <button disabled={pageIndex === totalPages} onClick={() => setPaginationNav(pageIndex + 1)} className= {pageIndex === totalPages ? "h-12 border-2 \
-                                                                border-indigo-600\
-                                                                px-4 rounded-r-lg" : 
-                                                                
-                                                                "h-12 border-2  \
-                                                                border-indigo-600\
-                                                                px-4 rounded-r-lg\
-                                                            hover:bg-indigo-600 hover:text-white"}>
-                                        <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" fillRule="evenodd"></path></svg>
-                                    </button>
-                                </div>
+                                {totalPages > 1 
+                                ? <Pagination setPageIndex={changePage} pageIndex={pageIndex} totalPages={totalPages} />
+                                : <></>
+                                } 
                                 <table className="min-w-full text-center">
                                 <thead className=" order-b bg-indigo-100">
                                     <tr>
@@ -208,7 +161,7 @@ export default function SWR() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <SubscriptionList index={pageIndex} setTotal = {changePage}/>
+                                    <SubscriptionList index={pageIndex} setTotal = {changeTotal}/>
                                 </tbody>
                                 </table>
                             </div>
