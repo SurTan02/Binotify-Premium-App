@@ -6,26 +6,35 @@ import Pagination from "../components/Pagination";
 import endpointsConfig from "../config/endpoints.config";
 
 function Home() {
-  const [showModal, setShowModal] = useState('');
-  const [judul, setJudul] = useState('');
-  const [path, setPath] = useState('');
+  const [showModal, setShowModal] = useState<string>('');
+  const [judul, setJudul] = useState<string>('');
+  const [path, setPath] = useState<string>('');
   const [id, setId] = useState<number>(0);
   const [data, setData] = useState<any[]>([])
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPage, setTotalPage] = useState(1);
+  const [pageIndex, setPageIndex] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
   useEffect(() => {
-    getUsers(currentPage);
-  }, [() => getUsers(currentPage)]);
+    getSongs(pageIndex);
+  }, [() => getSongs(pageIndex)]);
 
   const changePage = (current: number) => {
-    setCurrentPage(current);
+    setPageIndex(current);
   };
 
-  const getUsers = async (current: number) => {
+  const getSongs = async (current: number) => {
     const response = await axios.get(endpointsConfig.REST_SERVICE_BASE_URL+ "/song?page=" + current);
-    setTotalPage(response.data.total_page)
+    setTotalPages(response.data.total_page)
     setData(response.data.list);
+  };
+
+  const deleteSong = async (selected_song: number) => {
+    const response = await axios.delete(
+      endpointsConfig.REST_SERVICE_BASE_URL + "/song", { data: {
+        song_id: selected_song
+      }
+    });
+    getSongs(pageIndex);
   };
 
   return (
@@ -42,12 +51,14 @@ function Home() {
         </div>
       )}
 
-
       <Navbar callback={() => setShowModal('ADD')} isAdmin={false} />
       
       <div className="w-[100vw] h-full justify-center items-center flex flex-col px-10 py-8 mt-8">
         <h1 className="text-3xl font-bold text-indigo-500">Song List</h1>
-        <Pagination current={changePage} total={totalPage} />
+        {totalPages > 1 
+          ? <Pagination setPageIndex={changePage} pageIndex={pageIndex} totalPages={totalPages} />
+          : <></>
+        } 
         <div className="flex flex-col">
           <div className="overflow-x-auto mt-8 sm:-mx-6 items-center lg:-mx-8">
             <div className="py-4 inline-block min-w-full sm:px-6 lg:px-8">
@@ -95,7 +106,7 @@ function Home() {
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
-                            {index + 1}
+                            {index + 1 + (pageIndex-1) * 10 }
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -122,7 +133,7 @@ function Home() {
                             Edit
                           </button>
                           <button
-                            onClick={() => console.log("delete")}
+                            onClick={() => deleteSong(item.song_id)}
                             // to={"#"}
                             className="bg-red-500 text-white px-4 py-1 rounded-lg"
                           >
