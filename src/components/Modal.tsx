@@ -3,27 +3,38 @@ import { useEffect, useState } from "react";
 import endpointsConfig from "../config/endpoints.config";
 
 
-const AddSongForm = ({callback} : {callback:() => void}) => {
-  const [judul, setJudul] =  useState<any>('');
-  const [file, setFile] =  useState<any>('');
-  const [msg, setMsg] =  useState<any>('');
- 
-  useEffect(() => {
-    // getUsers(currentPage);
-  }, []);
+const SongForm = ({action, isEdit, title, url, selectedId}:
+                {action:() => void, isEdit: boolean, title: string, url: string, selectedId: number})  => {
+  const [judul, setJudul] =  useState<string>(title);
+  const [file, setFile] =  useState<any>();
+  const [msg, setMsg] =  useState<string>('');
 
-  const addSong = async (path : string) => {
-    if (path === '' || judul === ''){
-      setMsg("Song Title Cant Be Left Empty Like Ur Heart")
+  const addSong = async (url : string) => {
+    if (url === '' || judul === ''){
+      setMsg("Song Title Cant Be Empty!")
       return;
     }
-
     await axios.post(
       endpointsConfig.REST_SERVICE_BASE_URL + "/song", {
         judul: judul,
-        audio_path : path
+        audio_path : url
     });
-    callback;
+    action();
+  };
+
+  const EditSong = async (url : string) => {
+    
+    if (url === '' || judul === ''){
+      setMsg("Song Title Cant Be Empty!")
+      return;
+    }
+    const response = await axios.patch(
+      endpointsConfig.REST_SERVICE_BASE_URL + "/song", {
+        song_id: selectedId,
+        judul: judul,
+        audio_path : url
+    });
+    action();
   };
 
   const handleFileChange = (event : any) => {
@@ -31,21 +42,25 @@ const AddSongForm = ({callback} : {callback:() => void}) => {
   };
 
   const handleUpload = async(event: any) => {
+
+    // If editing song
+    if ((isEdit) && (!file)){
+      EditSong(url);
+      return
+    }
+
     event.preventDefault();
     const data = new FormData();
     data.append('file', file);
-    
-
     const res = await axios.post(endpointsConfig.REST_SERVICE_BASE_URL + "/upload", data , {
       headers:{
         "Content-type" : "multipart/form-data"
       }
     });
     if (res.data.msg){
-      console.log("bro")
       setMsg(res.data.msg);
     } else{
-      addSong(res.data.url);
+      (isEdit) ? EditSong(res.data.url) : addSong(res.data.url); 
     }
   };
 
@@ -55,7 +70,7 @@ const AddSongForm = ({callback} : {callback:() => void}) => {
         {" "}
         <div className="py-12">
           <div className="mt-0 max-w-md">
-            <h2 className="text-2xl font-bold mb-4">Add Song</h2>
+            <h2 className="text-2xl font-bold mb-4">{isEdit? 'Edit Song' : 'Add Song'}</h2>
             <div className="grid grid-cols-1 gap-3">
               <label className="block">
                 <span className="text-gray-700">Song Title</span>
@@ -97,17 +112,17 @@ const AddSongForm = ({callback} : {callback:() => void}) => {
                 {msg}
               </label>
             </div>
-            <div className="inline-flex items-center mt-6 px-6 py-1 text-sm font-medium text-center text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300"
+            <button className="inline-flex items-center mt-6 px-6 py-1 text-sm font-medium text-center text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300"
               onClick={handleUpload}
             >
               Save
-            </div>
-            <div
+            </button>
+            <button
               className="inline-flex items-center mt-6 mx-4 px-5 py-1 text-sm font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300"
-              onClick={callback}
+              onClick={action}
             >
               cancel
-            </div>
+            </button>
           </div>
         </div>
       </div>
@@ -115,4 +130,4 @@ const AddSongForm = ({callback} : {callback:() => void}) => {
   );
 };
 
-export default AddSongForm;
+export default SongForm;
