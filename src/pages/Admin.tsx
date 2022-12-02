@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useState } from "react";
 import Navbar from "../components/Navbar";
 import axios from "axios";
 import useSWR from "swr";
@@ -13,7 +13,7 @@ function SubscriptionList({index, setTotal} : {index : number , setTotal: (total
         return res.data;
     }
     
-    const {data} = useSWR(url, fetcher, {refreshInterval(latestData) {
+    const {data, mutate} = useSWR(url, fetcher, {refreshInterval(latestData) {
         if (latestData?.subscriptions[0].subscription.length < 10){
             return 5000;
         }else{
@@ -34,11 +34,7 @@ function SubscriptionList({index, setTotal} : {index : number , setTotal: (total
     );
     setTotal(arr[0].total);
 
-    const updateStatus = async (
-        subscriber_id: number,
-        creator_id: number,
-        status: String
-      ) => {
+    const updateStatus = async (subscriber_id: number, creator_id: number, status: String) => {
         await axios.patch(
           endpointsConfig.REST_SERVICE_BASE_URL + "/subscription", {
             creator_id: creator_id,
@@ -67,12 +63,10 @@ function SubscriptionList({index, setTotal} : {index : number , setTotal: (total
                 {item.status == "PENDING" ? (
                 <div>
                     <button
-                    onClick={() =>
-                        updateStatus(
-                        item.subscriber_id,
-                        item.creator_id,
-                        "ACCEPTED"
-                        )
+                    onClick={ async() => {
+                        await updateStatus(item.subscriber_id, item.creator_id, "ACCEPTED")
+                        mutate({ ...data})
+                    }
                     }
                     className="bg-amber-500 text-white px-4 py-1 rounded-lg"
                     >
@@ -80,12 +74,10 @@ function SubscriptionList({index, setTotal} : {index : number , setTotal: (total
                     </button>
 
                     <button
-                    onClick={() =>
-                        updateStatus(
-                        item.subscriber_id,
-                        item.creator_id,
-                        "REJECTED"
-                        )
+                    onClick={async() =>{
+                        await updateStatus( item.subscriber_id, item.creator_id, "REJECTED")
+                        mutate({ ...data})
+                    }
                     }
                     className="bg-red-500 text-white px-4 py-1 rounded-lg"
                     >
@@ -98,8 +90,7 @@ function SubscriptionList({index, setTotal} : {index : number , setTotal: (total
                 </div>
                 )}
             </td>
-            </tr>
-        
+            </tr>      
     )
 }
 
